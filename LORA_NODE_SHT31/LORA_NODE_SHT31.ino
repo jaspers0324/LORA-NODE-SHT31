@@ -26,29 +26,27 @@ void setup() {
     //Serial.println("Starting LoRa failed!");
     while (1);
   }
-
 }
+
 
 void loop() {
   float t = sht31.readTemperature();
   float h = sht31.readHumidity();
 
-   //測試30-70%溼度補償值 
-  float HA = 0.0; //1% SHT31 與 Rotronic 器差值
-  float HB = 0.0; //5% SHT31 與 Rotronic 器差值
-  float HC = 0.0; //10% SHT31 與 Rotronic 器差值
-  float HD = 0.0; //20% SHT31 與 Rotronic 器差值
-  float HE = 2.6; //30% SHT31 與 Rotronic 器差值 
-  float HF = 2.4; //40% SHT31 與 Rotronic 器差值 
-  float HG = 2.4; //50% SHT31 與 Rotronic 器差值 
-  float HH = 3.1; //60% SHT31 與 Rotronic 器差值 
-  float HI = 0.5; //70% SHT31 與 Rotronic 器差值
-  
-  float HZ; //濕度減掉器差值結果
+   
+//溼度補償值 
+  float HA = 3.0; //30% SHT31 與 Rotronic 器差值
+  float HB = 2.5; //40% SHT31 與 Rotronic 器差值
+  float HC = 1.5; //50% SHT31 與 Rotronic 器差值
+  float HD = 0.5; //60% SHT31 與 Rotronic 器差值
 
+  float HZ = h; //濕度減掉器差值結果
+
+
+  
   if (! isnan(t)) {  // check if 'is not a number'
     //Serial.print("Temp *C = "); 
-    //Serial.print(t);
+    //Serial.println(t);
   } else { 
     //Serial.println("Failed to read temperature");
   }
@@ -57,75 +55,45 @@ void loop() {
   
   if (! isnan(h)) {  // check if 'is not a number'
     //Serial.print("Hum. % = "); 
-    //Serial.println(HZ);
+    //Serial.println(h);
   } else { 
     //Serial.println("Failed to read humidity");
   }
   //Serial.println();
   //delay(1000);
-
-
-
-  // 校正區間30%
-  // 精準度設定+-2%
-  if (h>30 && h<39) {  
-    //Serial.print("Hum. % = "); 
-    HZ = h-HE;
-    Serial.println(HZ,1); 
-    
-  } else { 
-    //Serial.println(h,1);
-  }
-
-
-  // 校正區間40%
-  // 精準度設定+-2%
-  if (h>40 && h<49) {  
-    //Serial.print("Hum. % = "); 
-    HZ = h-HF;
-    Serial.println(HZ,1); 
-    
-  } else { 
-    //Serial.println(h,1);
-  }
-
-  // 校正區間50%
-  // 精準度設定+-2%
-  if (h>50 && h<59) {  
-    //Serial.print("Hum. % = "); 
-    HZ = h-HG;
-    Serial.println(HZ,1); 
-    
-  } else { 
-    //Serial.println(h,1);
-  }
-
-  // 校正區間60%
-  // 精準度設定+-2%
-  if (h>60 && h<66) {  
-    //Serial.print("Hum. % = "); 
-    HZ = h-HH;
-    Serial.println(HZ,1); 
-    
-  } else { 
-    //Serial.println(h,1);
-  }
-
-  // 校正區間70%
-  // 精準度設定+-2%
-  if (h>66 && h<71) {  
-    //Serial.print("Hum. % = "); 
-    HZ = h-HI;
-    Serial.println(HZ,1); 
-    
-  } else { 
-    //Serial.println(h,1);
-  }
-
   
 
-  //Serial.print("Sending packet: ");
-  //Serial.println(counter);
+  // 校正區間30-40%
+  // 精準度設定+-2%
+  if (h>30 && h<40) {  
+    HZ = h-HA;
+    Serial.println(HZ,1); 
+  }
+
+
+  // 校正區間40-50%
+  // 精準度設定+-2%
+  if (h>40 && h<50) {  
+    HZ = h-HB;
+    Serial.println(HZ,1); 
+  }
+
+
+  // 校正區間50-60%
+  // 精準度設定+-2%
+  if (h>50 && h<60) {  
+    HZ = h-HC;
+    Serial.println(HZ,1); 
+  }
+
+
+  // 校正區間60-70%
+  // 精準度設定+-2%
+  if (h>60 && h<70) {  
+    HZ = h+HD;
+    Serial.println(HZ,1); 
+  }
+
 
   // send packet
   LoRa.beginPacket();
@@ -136,8 +104,6 @@ void loop() {
   LoRa.print(HZ,1); //顯示小數點後一位
   LoRa.print(",");
   LoRa.println();
-  //LoRa.print(counter);
   LoRa.endPacket();
-  //counter++;
   delay(1000);
 }
